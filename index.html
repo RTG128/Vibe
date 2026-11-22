@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>Vibe Music</title>
+<style>
+:root{--bg:#000;--card:#1c1c1e;--card2:#2c2c2e;--tx:#fff;--sub:#8e8e93;--acc:#fa2d48;--line:#38383a}
+@media(prefers-color-scheme:light){:root{--bg:#f2f2f7;--card:#fff;--card2:#e5e5ea;--tx:#000;--sub:#6c6c70;--line:#d1d1d6}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+#app{max-width:520px;margin:0 auto;height:100%;position:relative;overflow:hidden}
+.scroll{position:absolute;inset:0;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 190px}
+h1{font-size:34px;font-weight:700;margin:8px 0 12px;letter-spacing:-.5px}
+.search{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:12px;padding:9px 12px;margin-bottom:12px}
+.search input{flex:1;background:none;border:0;outline:0;color:var(--tx);font-size:17px}
+.search svg{width:18px;height:18px;fill:var(--sub)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.chip{padding:7px 14px;border-radius:20px;background:var(--card);font-size:14px;font-weight:600;white-space:nowrap;border:0;color:var(--tx)}
+.chip.on{background:var(--acc);color:#fff}
+.row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:.5px solid var(--line)}
+.row img{width:54px;height:54px;border-radius:8px;object-fit:cover;background:var(--card2)}
+.row .m{flex:1;min-width:0}
+.t{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a{font-size:14px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:10px;font-weight:700;color:#fff;background:#30d158;border-radius:4px;padding:1px 5px;margin-right:5px}
+.tag.p{background:#ff9f0a}
+.ar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 2px;border-bottom:.5px solid var(--line)}
+.an{flex:1;font-size:17px;font-weight:600}
+.star{background:none;border:0;font-size:26px;color:var(--acc);padding:0 6px}
+.fl{font-size:13px;font-weight:700;border:1px solid var(--acc);border-radius:14px;padding:4px 10px!important;margin-right:2px}
+#yt{position:absolute;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px 12px;overflow-y:auto}
+#yt.open{display:flex}
+#ytf{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;margin:12px 0;background:#000;flex:none}
+.ytbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dl{background:none;border:0;color:var(--acc);padding:8px}
+.dl svg{width:22px;height:22px;fill:currentColor}
+.row.cur .t{color:var(--acc)}
+.msg{color:var(--sub);text-align:center;padding:40px 0}
+#mini{position:absolute;left:8px;right:8px;bottom:calc(64px + env(safe-area-inset-bottom,0px));background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:14px;padding:8px 12px;display:none;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:5}
+#mini img{width:44px;height:44px;border-radius:8px}
+#mini .m{flex:1;min-width:0}
+.ib{background:none;border:0;color:var(--tx);padding:6px}
+.ib svg{width:26px;height:26px;fill:currentColor;display:block}
+nav{position:absolute;left:0;right:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-top:.5px solid var(--line);display:flex;z-index:6}
+nav button{flex:1;background:none;border:0;color:var(--sub);font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav button.on{color:var(--acc)}
+nav svg{width:26px;height:26px;fill:currentColor}
+#full{position:absolute;inset:0;background:linear-gradient(180deg,#3a3a3c,#000 80%);color:#fff;z-index:10;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:calc(env(safe-area-inset-top,0px) + 14px) 28px calc(env(safe-area-inset-bottom,0px) + 28px);display:flex;flex-direction:column}
+#full.open{transform:none}
+.grab{width:40px;height:5px;border-radius:3px;background:#ffffff55;margin:0 auto 18px}
+#fart{width:100%;aspect-ratio:1;border-radius:14px;object-fit:cover;box-shadow:0 20px 50px rgba(0,0,0,.6);transition:transform .3s}
+#fart.pause{transform:scale(.86)}
+#ftitle{font-size:22px;font-weight:700;margin-top:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fartist{font-size:18px;color:#ffffffaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:#ffffff40;margin:22px 0 6px;outline:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:0;height:0}
+.times{display:flex;justify-content:space-between;font-size:12px;color:#ffffffaa}
+.ctrl{display:flex;justify-content:center;align-items:center;gap:34px;margin-top:auto}
+.ctrl .ib{color:#fff}.ctrl .ib svg{width:40px;height:40px}.ctrl .big svg{width:64px;height:64px}
+.bar{display:flex;justify-content:center;gap:26px;margin-top:18px}
+.bar button{background:#ffffff22;color:#fff;border:0;border-radius:20px;padding:9px 18px;font-size:14px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="scroll" id="home">
+    <h1>Trending</h1>
+    <div class="chips" id="chips"></div>
+    <div id="homeList"></div>
+  </div>
+  <div class="scroll" id="srch" style="display:none">
+    <h1>Search</h1>
+    <div class="search"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5 5 1.4-1.4-5-5A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+      <input id="q" placeholder="Koi bhi gaana, artist, language..." enterkeyhint="search" autocomplete="off"></div>
+    <div id="srchList"><div class="msg">Gaane ka naam likho 🎵</div></div>
+  </div>
+
+  <div class="scroll" id="sing" style="display:none">
+    <h1>Singers</h1>
+    <div class="search"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5 5 1.4-1.4-5-5A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+      <input id="aq" placeholder="Duniya ka koi bhi singer dhundo..." autocomplete="off"></div>
+    <div class="chips" id="rchips"></div>
+    <div id="singHead"></div><div id="singBody"></div>
+  </div>
+
+  <div id="yt"><div class="ytbar"><b id="ytt" class="t"></b><span><button class="chip" id="ytk">🔑</button> <button class="chip on" id="ytx">✕ Close</button></span></div>
+    <iframe id="ytf" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+    <div style="color:var(--sub);font-size:13px">Sahi gaana na ho to neeche se dusra chuno:</div><div id="ytl"></div></div>
+
+  <div id="mini">
+    <img id="mimg" alt=""><div class="m"><div class="t" id="mt"></div><div class="a" id="ma"></div></div>
+    <button class="ib" id="mplay"></button><button class="ib" id="mnext"></button>
+  </div>
+
+  <nav>
+    <button id="tHome" class="on"><svg viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg>Trending</button>
+    <button id="tSrch"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5 5 1.4-1.4-5-5A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>Search</button>
+    <button id="tSing"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg>Singers</button>
+  </nav>
+
+  <div id="full">
+    <div class="grab" id="grab"></div>
+    <img id="fart" alt="">
+    <div id="ftitle"></div><div id="fartist"></div>
+    <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
+    <div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+    <div class="ctrl">
+      <button class="ib" id="fprev"></button>
+      <button class="ib big" id="fplay"></button>
+      <button class="ib" id="fnext"></button>
+    </div>
+    <div class="bar"><button id="fdl">⬇ Download</button><button id="fyt">▶ Full song</button></div>
+  </div>
+</div>
+<audio id="au" preload="auto" playsinline></audio>
+
+<script>
+const $=s=>document.querySelector(s), au=$('#au');
+const I={play:'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>',pause:'<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>',next:'<svg viewBox="0 0 24 24"><path d="M5 5v14l10-7zm11 0h3v14h-3z"/></svg>',prev:'<svg viewBox="0 0 24 24"><path d="M19 5v14L9 12zM5 5h3v14H5z"/></svg>',dl:'<svg viewBox="0 0 24 24"><path d="M11 3h2v9l3.5-3.5 1.4 1.4L12 15.8 6.1 9.9l1.4-1.4L11 12zM5 18h14v2H5z"/></svg>'};
+$('#mnext').innerHTML=I.next;$('#fnext').innerHTML=I.next;$('#fprev').innerHTML=I.prev;
+let list=[],view=[],idx=-1;
+const AUD='https://api.audius.co/v1', APP='app_name=VibeMusic';
+
+// ---- Data sources ----
+async function audius(path){
+  const r=await fetch(`${AUD}${path}${path.includes('?')?'&':'?'}${APP}`);const j=await r.json();
+  return (j.data||[]).filter(t=>t.is_streamable!==false).map(t=>({id:'a'+t.id,title:t.title,artist:t.user.name,
+    art:(t.artwork&&(t.artwork['480x480']||t.artwork['150x150']))||'',url:`${AUD}/tracks/${t.id}/stream?${APP}`,full:true}));
+}
+const hi=s=>s.replace(/\d+x\d+(bb)?\./,'400x400bb.');
+function jsonp(url){return new Promise((res,rej)=>{const cb='cb'+Math.random().toString(36).slice(2),sc=document.createElement('script');
+  const done=()=>{clearTimeout(to);delete window[cb];sc.remove()};const to=setTimeout(()=>{done();rej(new Error('timeout'))},12000);
+  window[cb]=d=>{done();res(d)};sc.onerror=()=>{done();rej(new Error('network'))};
+  sc.src=url+(url.includes('?')?'&':'?')+'callback='+cb;document.head.appendChild(sc)})}
+const mapT=t=>({id:'i'+t.trackId,title:t.trackName,artist:t.artistName,art:hi(t.artworkUrl100),url:t.previewUrl,full:false});
+const uniq=a=>{const q=new Set();return a.filter(t=>!q.has(t.id)&&q.add(t.id))};
+async function itunes(term,country='in',n=50,extra=''){
+  const d=await jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&media=music&entity=song&limit=${n}&country=${country}${extra}`);
+  return d.results.filter(t=>t.previewUrl).map(mapT);
+}
+const mi=(terms,cc='in',n=60)=>Promise.all(terms.map(t=>itunes(t,cc,n).catch(()=>[]))).then(a=>uniq(a.flat()));
+const byArtist=(n,k=50)=>itunes(n,'in',k,'&attribute=artistTerm');
+async function itunesTop(cc){
+  try{
+    const r=await fetch(`https://rss.applemarketingtools.com/api/v2/${cc}/music/most-played/50/songs.json`);
+    const ids=(await r.json()).feed.results.map(x=>x.id).join(',');
+    const l=await jsonp(`https://itunes.apple.com/lookup?id=${ids}&country=${cc}`);
+    const out=l.results.filter(t=>t.previewUrl).map(mapT);if(out.length)return out;
+  }catch(e){}
+  const T={in:['new hindi songs','bollywood hits','punjabi hits','trending reels songs','new tamil songs','new telugu songs'],us:['top hits','pop hits','hip hop hits'],kr:['kpop','bts','blackpink','newjeans','stray kids']}[cc]||['top hits'];
+  const out=await mi(T,cc,50);if(!out.length)throw new Error('iTunes se data nahi aaya, internet check karo');return out;
+}
+async function findArtists(q){const d=await jsonp(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&entity=musicArtist&limit=40`);return [...new Set(d.results.map(a=>a.artistName))]}
+async function mySingers(){
+  if(!FOL.length)throw new Error('Pehle Singers tab me favourite singers ⭐ karo');
+  const a=await Promise.all(FOL.map(n=>byArtist(n,15).catch(()=>[])));const out=[];
+  for(let i=0;i<15;i++)a.forEach(x=>x[i]&&out.push(x[i]));return uniq(out);
+}
+const lang=(n,extra=[])=>()=>mi([`new ${n} songs`,`latest ${n} songs`,`${n} hits`,`${n} romantic songs`,`${n} party songs`,`old ${n} songs`,...extra]);
+const CH=[
+ ['🇮🇳 India Hits',()=>itunesTop('in')],
+ ['⭐ My Singers',mySingers],
+ ['🔥 Full Songs (Audius)',()=>audius('/tracks/trending?time=week')],
+ ['Hindi',lang('hindi',['bollywood hits','90s bollywood','arijit singh','reels trending hindi'])],
+ ['Punjabi',lang('punjabi')],
+ ['Tamil',lang('tamil')],
+ ['Telugu',lang('telugu')],
+ ['Malayalam',lang('malayalam')],
+ ['Kannada',lang('kannada')],
+ ['Bengali',lang('bengali')],
+ ['Marathi',lang('marathi')],
+ ['Gujarati',lang('gujarati')],
+ ['Bhojpuri',lang('bhojpuri')],
+ ['Haryanvi',lang('haryanvi')],
+ ['Urdu / Ghazal',lang('urdu',['ghazal','qawwali'])],
+ ['Indian Rap',()=>mi(['indian hip hop','desi hip hop','divine','emiway bantai','raftaar','badshah'])],
+ ['🎹 Full: Pop',()=>audius('/tracks/trending?time=week&genre=Pop')],
+ ['🎤 Full: Hip-Hop',()=>audius('/tracks/trending?time=week&genre='+encodeURIComponent('Hip-Hop/Rap'))],
+ ['⚡ Full: Electronic',()=>audius('/tracks/trending?time=week&genre=Electronic')],
+ ['🌍 Global Top',()=>itunesTop('us')],
+ ['🇰🇷 K-Pop',()=>itunesTop('kr')],
+];
+
+// ---- UI ----
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function render(el,tracks){
+  view=tracks;
+  if(!tracks.length){el.innerHTML='<div class="msg">Kuch nahi mila 😕</div>';return}
+  el.innerHTML=tracks.map((t,i)=>`<div class="row" data-i="${i}" data-id="${t.id}"><img loading="lazy" src="${esc(t.art)}" alt=""><div class="m"><div class="t">${esc(t.title)}</div><div class="a"><span class="tag ${t.full?'':'p'}">${t.full?'FULL':'30s'}</span>${esc(t.artist)}</div></div>${t.full?'':'<button class="dl fl" data-f="'+i+'">▶ Full</button>'}<button class="dl" data-d="${i}">${I.dl}</button></div>`).join('');
+  hl();
+}
+function hl(){document.querySelectorAll('.row').forEach(r=>r.classList.toggle('cur',idx>=0&&list[idx]&&r.dataset.id===list[idx].id))}
+document.addEventListener('click',e=>{
+  const st=e.target.closest('[data-s]');if(st){const n=st.dataset.s;toggleFol(n);document.querySelectorAll('[data-s]').forEach(x=>{if(x.dataset.s===n)x.textContent=isFol(n)?'★':'☆'});return}
+  const an=e.target.closest('[data-a]');if(an){openArtist(an.dataset.a);return}
+  const fl=e.target.closest('[data-f]');if(fl){playFull(view[+fl.dataset.f]);return}
+  const vv=e.target.closest('[data-v]');if(vv){ytPlay(vv.dataset.v);return}
+  const d=e.target.closest('[data-d]');if(d){e.stopPropagation();download(view[+d.dataset.d]);return}
+  const r=e.target.closest('.row');if(r){list=view;play(+r.dataset.i)}
+});
+async function load(el,fn){
+  el.innerHTML='<div class="msg">Loading…</div>';
+  try{render(el,await fn())}catch(err){el.innerHTML='<div class="msg">Load nahi hua ('+esc(err.message||err)+'). <br><br><button class="chip on" onclick="location.reload()">Retry</button></div>'}
+}
+const chips=$('#chips');
+CH.forEach((c,i)=>{const b=document.createElement('button');b.className='chip'+(i?'':' on');b.textContent=c[0];
+  b.onclick=()=>{curFn=c[1];chips.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');load($('#homeList'),c[1])};chips.appendChild(b)});
+let curFn=CH[0][1];load($('#homeList'),curFn);
+const refresh=()=>{if(au.paused&&$('#home').style.display!=='none')load($('#homeList'),curFn)};
+setInterval(refresh,10*60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+
+let tm;$('#q').addEventListener('input',e=>{clearTimeout(tm);const v=e.target.value.trim();if(!v)return;
+  tm=setTimeout(()=>load($('#srchList'),async()=>{const [a,b]=await Promise.allSettled([audius('/tracks/search?query='+encodeURIComponent(v)),itunes(v)]);
+    return [...(a.value||[]),...(b.value||[])]}),450)});
+function tab(n){['home','srch','sing'].forEach((id,i)=>$('#'+id).style.display=i===n?'':'none');
+  ['tHome','tSrch','tSing'].forEach((id,i)=>$('#'+id).classList.toggle('on',i===n));
+  if(n===1)$('#q').focus();if(n===2)initSing()}
+$('#tHome').onclick=()=>tab(0);$('#tSrch').onclick=()=>tab(1);$('#tSing').onclick=()=>tab(2);
+
+// ---- Full songs via official YouTube embed ----
+const dec=x=>{const d=document.createElement('textarea');d.innerHTML=x;return d.value};
+const ytPlay=id=>{$('#ytf').src=`https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0`};
+async function playFull(t){
+  if(!t)return;let k='';try{k=localStorage.getItem('ytk')||''}catch(e){}
+  if(!k){k=(prompt('Full song ke liye apni free YouTube API key paste karo.\n(Google Cloud Console > YouTube Data API v3 > Credentials > Create API key)')||'').trim();if(!k)return;try{localStorage.setItem('ytk',k)}catch(e){}}
+  au.pause();$('#yt').classList.add('open');$('#ytt').textContent=t.title;$('#ytf').src='';$('#ytl').innerHTML='<div class="msg">Searching…</div>';
+  try{
+    const r=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&maxResults=6&q=${encodeURIComponent(t.artist+' '+t.title+' official audio')}&key=${encodeURIComponent(k)}`);
+    const j=await r.json();
+    if(j.error){try{localStorage.removeItem('ytk')}catch(e){}throw new Error('API key error: '+j.error.message)}
+    const it=j.items||[];if(!it.length)throw new Error('Kuch nahi mila');
+    $('#ytl').innerHTML=it.map(v=>`<div class="ar" data-v="${v.id.videoId}"><span class="an" style="font-size:15px">${esc(dec(v.snippet.title))}<br><small style="color:var(--sub);font-weight:400">${esc(dec(v.snippet.channelTitle))}</small></span></div>`).join('');
+    ytPlay(it[0].id.videoId);
+  }catch(e){$('#ytl').innerHTML='<div class="msg">'+esc(e.message)+'</div>'}
+}
+$('#ytx').onclick=()=>{$('#ytf').src='';$('#yt').classList.remove('open')};
+$('#ytk').onclick=()=>{try{localStorage.removeItem('ytk')}catch(e){}alert('API key hata di. Agli baar Full dabane par nayi key poochhega.')};
+
+// ---- Singers ----
+const FOL=(()=>{try{return JSON.parse(localStorage.getItem('fol')||'[]')}catch(e){return[]}})();
+const isFol=n=>FOL.includes(n);
+function toggleFol(n){const i=FOL.indexOf(n);i>=0?FOL.splice(i,1):FOL.push(n);try{localStorage.setItem('fol',JSON.stringify(FOL))}catch(e){}}
+const R={
+"Hindi / Bollywood":"Arijit Singh|Shreya Ghoshal|Sonu Nigam|Atif Aslam|Neha Kakkar|Badshah|Yo Yo Honey Singh|Jubin Nautiyal|Darshan Raval|Armaan Malik|Kumar Sanu|Udit Narayan|Alka Yagnik|Lata Mangeshkar|Asha Bhosle|Kishore Kumar|Mohammed Rafi|Mukesh|Sunidhi Chauhan|Shaan|KK|Mika Singh|Vishal Mishra|B Praak|Tulsi Kumar|Palak Muchhal|Dhvani Bhanushali|Divine|Raftaar|Emiway Bantai|King|MC Stan|Ritviz|Prateek Kuhad|Anuv Jain|Sachet Tandon|Parampara Tandon|Stebin Ben|Mohit Chauhan|Pritam|A. R. Rahman|Amit Trivedi|Shankar Mahadevan|Sukhwinder Singh|Papon|Javed Ali|Ankit Tiwari|Guru Randhawa|Jasleen Royal|Ash King|Benny Dayal|Shilpa Rao|Harshdeep Kaur|Kavita Krishnamurthy|Anuradha Paudwal|Hariharan|Kailash Kher|Monali Thakur|Asees Kaur|Nikhita Gandhi|Sanam|Lucky Ali|Vishal Dadlani|Mithoon|Himesh Reshammiya|Abhijeet|Sadhana Sargam|Kunal Ganjawala|Rekha Bhardwaj|Arman Malik|Amaal Mallik|Payal Dev|Neeti Mohan|Jonita Gandhi|Sonu Kakkar|Rahul Vaidya|Aditya Narayan|Mohit Suri|Ikka|Seedhe Maut|Kr$na|Raga|Tanishk Bagchi|Sachin-Jigar|Salim-Sulaiman|Shantanu Moitra|Ravi Shankar|Zakir Hussain|Hariprasad Chaurasia|Pandit Jasraj|Bhimsen Joshi|Kishori Amonkar|Ustad Rashid Khan|Shubha Mudgal",
+"Punjabi":"Diljit Dosanjh|AP Dhillon|Sidhu Moose Wala|Karan Aujla|Gippy Grewal|Ammy Virk|Jass Manak|Harrdy Sandhu|Jazzy B|Gurdas Maan|Sukhbir|Babbu Maan|Amrinder Gill|Sharry Mann|Jordan Sandhu|Mankirt Aulakh|Shubh|Gurnam Bhullar|Kaka|Parmish Verma|Nimrat Khaira|Sunanda Sharma|Afsana Khan|Jasmine Sandlas|Satinder Sartaaj|Bohemia|Imran Khan|Ranjit Bawa|Navaan Sandhu|Sunny Malton|Dilpreet Dhillon|Himmat Sandhu|R Nait|Gur Sidhu|Veet Baljit|Ninja|Sajjan Adeeb|Prabh Gill|Maninder Buttar|Millind Gaba|Bilal Saeed|Surjit Bindrakhia|Kuldeep Manak|Malkit Singh|Daler Mehndi|Hans Raj Hans|Sardool Sikander|Mannat Noor|Simar Doraha|Tegi Pannu|Inderpal Moga|Navjeet|Sultaan|Deep Jandu|Ikky|Intense|Talwiinder|Arjan Dhillon|Jazzy B",
+"Tamil / Telugu":"Anirudh Ravichander|Sid Sriram|Yuvan Shankar Raja|Harris Jayaraj|Ilaiyaraaja|S. P. Balasubrahmanyam|K. S. Chithra|S. Janaki|Dhanush|Shruti Haasan|Haricharan|Karthik|Devi Sri Prasad|Thaman S|Rahul Sipligunj|Kaala Bhairava|Mangli|Anurag Kulkarni|Chinmayi|Sanjith Hegde|Vijay Prakash|Pradeep Kumar|Santhosh Narayanan|Ghibran|G. V. Prakash Kumar|Dhee|Arivu|Vedan|Hanumankind|M. M. Keeravani|Ramya NSK|Sunitha|Geetha Madhuri|Shankar Mahadevan|Mano|Udit Narayan|Unni Menon|Swetha Mohan|Andrea Jeremiah|Shakthisree Gopalan|Hiphop Tamizha|Leon James|Imman|Vidyasagar|Mani Sharma|Koti|Ramana Gogula|Chaitra|Nakash Aziz|Roll Rida|Yazin Nizar|Armaan Malik|Sameera Bharadwaj|Ananya Bhat|Deepak Blue|Sri Krishna|Hemachandra|Ravi Basrur|Jakes Bejoy|Shreya Ghoshal|Swarnalatha|Mahathi|T. M. Soundararajan|P. Susheela|Vani Jairam",
+"Malayalam / Kannada":"K. J. Yesudas|Vijay Yesudas|Sithara Krishnakumar|Vineeth Sreenivasan|Sushin Shyam|Gopi Sundar|Christin Jos|Naresh Iyer|Najim Arshad|Shweta Mohan|Vidhu Prathap|G. Venugopal|M. G. Sreekumar|Rimi Tomy|Job Kurian|Anne Amie|Haricharan|Zubeen Garg|Sanjith Hegde|Vijay Prakash|Rajesh Krishnan|Arjun Janya|Raghu Dixit|V. Harikrishna|Ravi Basrur|Puneeth Rajkumar|Rajkumar|Chandan Shetty|Armaan Malik|Sonu Nigam|Shankar Mahadevan|Anuradha Bhat|Supriya Lohith|Vasuki Vaibhav|Siddharth Mahadevan|Santhosh Venky|Ricky Kej",
+"Bengali / Marathi / Gujarati":"Anupam Roy|Nachiketa|Arijit Singh|Shreya Ghoshal|Rupam Islam|Anupam Roy|Hemanta Mukherjee|Manna Dey|Srikanto Acharya|Lopamudra Mitra|Kaushiki Chakraborty|Ajay-Atul|Avadhoot Gupte|Adarsh Shinde|Anand Shinde|Vaishali Samant|Shankar Mahadevan|Sonu Nigam|Ajay Gogavale|Rohit Raut|Jasraj Joshi|Guru Thakur|Kinjal Dave|Geeta Rabari|Jignesh Kaviraj|Aishwarya Majmudar|Parthiv Gohil|Arvind Vegda|Rakesh Barot|Osman Mir|Kirtidan Gadhvi|Falguni Pathak|Sachin-Jigar|Mehul Surti|Hemant Chauhan|Praful Dave|Dhaval Barot",
+"Bhojpuri / Haryanvi":"Pawan Singh|Khesari Lal Yadav|Dinesh Lal Yadav Nirahua|Manoj Tiwari|Pramod Premi Yadav|Ritesh Pandey|Arvind Akela Kallu|Neelkamal Singh|Samar Singh|Shilpi Raj|Kalpana Patowary|Akshara Singh|Antra Singh Priyanka|Alka Jha|Khushboo Tiwari|Sapna Choudhary|Renuka Panwar|Masoom Sharma|Ajay Hooda|Vijay Varma|Diler Kharkiya|Raju Punjabi|Amit Saini Rohtakiya|Pranjal Dahiya|Sumit Goswami|Gulzaar Chhaniwala|Ruchika Jangid|KD DESIROCK|Mohit Sharma|Anjali Raghav",
+"Ghazal / Sufi / Pakistan":"Jagjit Singh|Pankaj Udhas|Mehdi Hassan|Ghulam Ali|Talat Aziz|Chitra Singh|Anup Jalota|Hariharan|Rahat Fateh Ali Khan|Nusrat Fateh Ali Khan|Abida Parveen|Farida Khanum|Ali Zafar|Ali Sethi|Asim Azhar|Hadiqa Kiani|Nazia Hassan|Zoheb Hassan|Quratulain Balouch|Momina Mustehsan|Shae Gill|Young Stunners|Talha Anjum|Bayaan|Strings|Junoon|Fuzon|Noori|Atif Aslam|Sajjad Ali|Shafqat Amanat Ali|Sanam Marvi|Wadali Brothers|Nooran Sisters|Zeb Bangash|Mekaal Hasan Band|Hassan Rahim|Umair Jaswal|Faakhir Mehmood|Waqar Ex|Arooj Aftab|Natasha Baig|Sahir Ali Bagga|Rizwan Butt|Aima Baig",
+"South Asia (Bangla/Nepal/SL)":"Habib Wahid|Tahsan|James|Arnob|Warfaze|Minar Rahman|Nancy|Shireen Akhter|Runa Laila|Sabina Yasmin|Andrew Kishore|Ayub Bachchu|Kona|Sugam Pokharel|Bipul Chettri|Yabesh Thapa|Pramod Kharel|Anju Panta|Narayan Gopal|Nepathya|1974 AD|Sajjan Raj Vaiba|Yohani|Bathiya and Santhush|W. D. Amaradeva|Sunil Edirisinghe|Kasun Kalhara|Chamara Weerasinghe|Umaria Sinhawansa|Iraj|Jaya Sri|Nadeemal Perera|Ridma Weerawardena|Dinesh Gamage",
+"Global Pop / R&B":"Taylor Swift|Ed Sheeran|Drake|The Weeknd|Billie Eilish|Ariana Grande|Justin Bieber|Dua Lipa|Bruno Mars|Adele|Rihanna|Beyoncé|Harry Styles|Olivia Rodrigo|Sabrina Carpenter|Doja Cat|SZA|Lady Gaga|Katy Perry|Coldplay|Imagine Dragons|Maroon 5|Shawn Mendes|Selena Gomez|Charlie Puth|Sam Smith|Lana Del Rey|Lizzo|Miley Cyrus|Demi Lovato|Camila Cabello|Halsey|Lorde|Sia|Shakira|Jennifer Lopez|Pitbull|Tate McRae|Benson Boone|Lewis Capaldi|Chappell Roan|Gracie Abrams|Teddy Swims|Noah Kahan|Hozier|Ellie Goulding|Rita Ora|Jessie J|Little Mix|One Direction|Niall Horan|Louis Tomlinson|Zayn|Liam Payne|Jonas Brothers|NSYNC|Backstreet Boys|Britney Spears|Christina Aguilera|Pink|Kelly Clarkson|Avril Lavigne|Alicia Keys|John Legend|Usher|Chris Brown|Ne-Yo|Frank Ocean|Daniel Caesar|Khalid|H.E.R.|Summer Walker|Jhené Aiko|Charlie XCX|Troye Sivan|Conan Gray|Ava Max|Zara Larsson|Anne-Marie|Meghan Trainor|Lauv|Jason Derulo|Sean Paul|Flo Rida|Enrique Iglesias|Cher|Janet Jackson|Tina Turner|Stevie Wonder|Lionel Richie|Michael Bolton|Ricky Martin|Backstreet Boys|Westlife|Boyzone|Craig David|Kelly Rowland|Destiny's Child|Normani|Victoria Monét|Muni Long|Coco Jones|Ravyn Lenae|Brent Faiyaz|Giveon|Lucky Daye|Leon Bridges|Jorja Smith|Raye|Self Esteem|Holly Humberstone|Dodie|Wolf Alice|Cigarettes After Sex|Mitski|Phoebe Bridgers|Clairo|Beabadoobee|Girl in Red|Billie Marten|Laufey|Joji|Rich Brian|NIKI",
+"Hip-Hop / Rap":"Eminem|Kendrick Lamar|Post Malone|Travis Scott|Kanye West|Jay-Z|50 Cent|Snoop Dogg|Dr. Dre|Lil Wayne|Nicki Minaj|Cardi B|Megan Thee Stallion|Tyler, The Creator|J. Cole|Future|Metro Boomin|21 Savage|Lil Baby|Gunna|Juice WRLD|XXXTENTACION|Pop Smoke|Central Cee|Dave|Stormzy|Lil Uzi Vert|Playboi Carti|Lil Nas X|Doja Cat|Ice Spice|GloRilla|Latto|Sexyy Red|Offset|Migos|Quavo|Takeoff|Roddy Ricch|DaBaby|A Boogie wit da Hoodie|Polo G|NBA YoungBoy|Kodak Black|Lil Durk|Rod Wave|Don Toliver|Lil Tecca|Mac Miller|Logic|Big Sean|Wiz Khalifa|Ludacris|Nelly|T.I.|Ja Rule|Fat Joe|Missy Elliott|Notorious B.I.G.|Tupac|Nas|Wu-Tang Clan|Run-D.M.C.|Ice Cube|N.W.A|Public Enemy|Outkast|A Tribe Called Quest|Lauryn Hill|Common|Mos Def|Jid|Denzel Curry|Brockhampton|Bad Bunny|Skepta|J Hus|Headie One|Aitch|Little Simz|Loyle Carner|Slowthai|Kneecap|Rich the Kid|Lil Yachty|Trippie Redd|Ski Mask the Slump God|Yeat|Ken Carson|Destroy Lonely|Gucci Mane|Young Thug|Rick Ross|Meek Mill|French Montana|Fabolous|Busta Rhymes|Method Man|DMX|Eve|Lil Kim|Foxy Brown|Doechii|Flo Milli|Saweetie|Coi Leray|Rapsody|Bree Runway|Little Mix",
+"Rock / Metal / Classics":"Michael Jackson|Elvis Presley|The Beatles|Queen|Led Zeppelin|Pink Floyd|Nirvana|Metallica|AC/DC|Guns N' Roses|Linkin Park|Green Day|Red Hot Chili Peppers|U2|Bon Jovi|ABBA|Madonna|Prince|Whitney Houston|Mariah Carey|Celine Dion|Frank Sinatra|Bob Marley|Bob Dylan|David Bowie|Elton John|Fleetwood Mac|Eagles|The Rolling Stones|Oasis|Radiohead|Arctic Monkeys|Blink-182|Fall Out Boy|My Chemical Romance|Panic! At The Disco|Twenty One Pilots|The Killers|Muse|Foo Fighters|Pearl Jam|Soundgarden|Alice in Chains|System of a Down|Slipknot|Iron Maiden|Black Sabbath|Megadeth|Pantera|Rammstein|Deep Purple|The Doors|Jimi Hendrix|Eric Clapton|Dire Straits|Genesis|Phil Collins|Billy Joel|Bruce Springsteen|Tom Petty|The Who|The Kinks|The Cure|Depeche Mode|The Smiths|Joy Division|New Order|Blondie|Talking Heads|Ramones|The Clash|Sex Pistols|Blur|Pulp|The Strokes|Kings of Leon|Paramore|Evanescence|Lacuna Coil|Nightwish|Sabaton|Avenged Sevenfold|Bring Me the Horizon|Sleep Token|Ghost|Rage Against the Machine|Tool|Disturbed|Breaking Benjamin|Three Days Grace|Nickelback|Creed|Foreigner|Journey|Toto|Boston|Kansas|Aerosmith|KISS|Def Leppard|Scorpions|Whitesnake|Van Halen|Ozzy Osbourne|Judas Priest|Mötley Crüe|Poison|Cheap Trick|ZZ Top|Lynyrd Skynyrd|The Allman Brothers Band|Santana|Creedence Clearwater Revival|Neil Young|Joni Mitchell|Carole King|Simon & Garfunkel|The Beach Boys|Bee Gees|Earth, Wind & Fire|Marvin Gaye|Stevie Wonder|Aretha Franklin|Ray Charles|Louis Armstrong|Ella Fitzgerald|Nina Simone|Billie Holiday|Nat King Cole|Dean Martin|Tony Bennett|Michael Bublé|Norah Jones|Diana Krall|Amy Winehouse|Duffy|Sade|Enya|Sinéad O'Connor|Dolores O'Riordan|The Cranberries",
+"Country / Folk":"Morgan Wallen|Luke Combs|Chris Stapleton|Kane Brown|Zach Bryan|Shaboozey|Luke Bryan|Jason Aldean|Blake Shelton|Carrie Underwood|Miranda Lambert|Kacey Musgraves|Dolly Parton|Johnny Cash|Willie Nelson|Garth Brooks|Shania Twain|Tim McGraw|Faith Hill|Keith Urban|Florida Georgia Line|Thomas Rhett|Sam Hunt|Dan + Shay|Lainey Wilson|Bailey Zimmerman|Jelly Roll|Tyler Childers|Sturgill Simpson|Jason Isbell|Maren Morris|Kelsea Ballerini|Gabby Barrett|Parker McCollum|Cody Johnson|Koe Wetzel|Riley Green|Brad Paisley|Alan Jackson|George Strait|Reba McEntire|Patsy Cline|Hank Williams|Merle Haggard|Waylon Jennings|Kenny Rogers|John Denver|Mumford & Sons|The Lumineers|Of Monsters and Men|Fleet Foxes|Bon Iver|Iron & Wine|Gregory Alan Isakov|Passenger|Jack Johnson|Ben Howard|Ed Sheeran|Hozier|Dermot Kennedy|Lord Huron",
+"EDM / DJ":"Avicii|Calvin Harris|David Guetta|Martin Garrix|Marshmello|Alan Walker|The Chainsmokers|Zedd|Kygo|Skrillex|Diplo|Tiësto|Swedish House Mafia|Armin van Buuren|Hardwell|Afrojack|Steve Aoki|Dimitri Vegas & Like Mike|R3HAB|Alesso|Axwell Λ Ingrosso|Don Diablo|Oliver Heldens|Galantis|Cash Cash|Major Lazer|DJ Snake|Gryffin|Illenium|Seven Lions|Porter Robinson|Madeon|Deadmau5|Daft Punk|Justice|Disclosure|Fisher|Chris Lake|John Summit|Peggy Gou|Charlotte de Witte|Amelie Lens|Carl Cox|Eric Prydz|Above & Beyond|Paul van Dyk|Kaskade|Flume|ODESZA|RL Grime|Zhu|Bonobo|Four Tet|Fred again..|Jamie xx|Rüfüs Du Sol|Lane 8|Bob Moses|Mau P|Dom Dolla|Meduza|Sam Feldt|Robin Schulz|Felix Jaehn|Lost Frequencies|Topic|Purple Disco Machine|Joel Corry|Becky Hill|Eliza Rose|MEDUZA|David Guetta|Black Eyed Peas|Pitbull|LMFAO|Basshunter|Darude|Vengaboys|Eiffel 65|Scooter|Sash!|ATB|Paul Oakenfold|Sasha|Tale Of Us|Solomun|Nina Kraviz|Boris Brejcha|Anyma|Afterlife|ARTBAT|Rave",
+"K-Pop / J-Pop / C-Pop":"BTS|Jungkook|V|Jimin|Jin|SUGA|RM|j-hope|BLACKPINK|JENNIE|LISA|ROSÉ|JISOO|Stray Kids|NewJeans|TWICE|SEVENTEEN|EXO|NCT 127|NCT DREAM|ENHYPEN|TOMORROW X TOGETHER|ITZY|aespa|IVE|LE SSERAFIM|(G)I-DLE|ATEEZ|Red Velvet|Girls' Generation|BIGBANG|G-DRAGON|PSY|IU|TAEYEON|ZICO|DEAN|ILLIT|BABYMONSTER|ZEROBASEONE|RIIZE|TAEMIN|SHINee|MONSTA X|MAMAMOO|Super Junior|2NE1|CL|Sunmi|HyunA|Chungha|Kai|Baekhyun|D.O.|Lee Hi|AKMU|Crush|Jay Park|Hwasa|Wonder Girls|Epik High|Zion.T|Heize|BOL4|Paul Kim|10cm|Jung Kook|Jay Chou|JJ Lin|Eason Chan|Jacky Cheung|Faye Wong|Teresa Teng|G.E.M.|Jolin Tsai|Mayday|Wang Leehom|Jackson Wang|Lay Zhang|Kris Wu|Utada Hikaru|YOASOBI|Kenshi Yonezu|Ado|LiSA|Official HIGE DANdism|King Gnu|Fujii Kaze|Yuuri|Aimer|Perfume|ONE OK ROCK|X Japan|BABYMETAL|MIYAVI|Reol|Eve|Vaundy|Mrs. GREEN APPLE|Hatsune Miku|Kyary Pamyu Pamyu|Hikaru Utada|Ayumi Hamasaki|Namie Amuro|SPITZ|Radwimps|Back Number|Kana Boon|Sekai No Owari|Tomoyo Harada|Yorushika|Zutomayo|Kocchi no Kento|Tani Yuuki|Creepy Nuts|Ayase|Daoko|Chilli Beans.|Eito|Novelbright|Ryokuoushoku Shakai|Sakanaction|Kiroro|Mr.Children|Southern All Stars|B'z|L'Arc~en~Ciel|GLAY|Dir en grey|Gackt|Hyde|Tohoshinki|Super Junior-M|F.T. Island|CNBLUE|2PM|Wanna One|Ateez|Treasure|The Boyz|VERIVERY|Oneus|P1Harmony|Xdinary Heroes|Day6|Younha|Hoody|Colde|Gaho|BewhY|Changmo|Dok2|Loopy|Beenzino|Giriboy|Sik-K|pH-1|Nucksal|Kid Milli|Lil Cherry|Yultron|Coogie|Reddy|Bibi|Rain|Bae Suzy|Park Bom|Dara|Minzy",
+"Latin / Spanish / Brazil":"Bad Bunny|J Balvin|Maluma|KAROL G|Ozuna|Daddy Yankee|Anuel AA|Rauw Alejandro|Feid|Peso Pluma|Becky G|ROSALÍA|Enrique Iglesias|Luis Fonsi|Shakira|Ricky Martin|Camilo|Sebastián Yatra|Nicky Jam|Myke Towers|Natanael Cano|Fuerza Regida|Grupo Frontera|Eslabon Armado|Marc Anthony|Romeo Santos|Juanes|Carlos Vives|Gloria Estefan|Selena|Anitta|Luísa Sonza|Tiago PZK|Bizarrap|Duki|Nicki Nicole|Quevedo|Mora|Arcángel|Wisin & Yandel|Don Omar|Tego Calderón|Farruko|Jhay Cortez|Ivy Queen|Natti Natasha|Lele Pons|Danna Paola|Belinda|Thalía|Paulina Rubio|Gloria Trevi|Alejandro Fernández|Vicente Fernández|Luis Miguel|Juan Gabriel|José José|Pedro Infante|Jorge Negrete|Los Tigres del Norte|Banda MS|Calibre 50|Junior H|Xavi|Gabito Ballesteros|Tito Double P|Ivan Cornejo|Eden Muñoz|Julión Álvarez|El Fantasma|Gerardo Ortiz|Christian Nodal|Ángela Aguilar|Pepe Aguilar|Luis R Conriquez|Yahritza y Su Esencia|Xavier Omar|Gilberto Santa Rosa|Héctor Lavoe|Celia Cruz|Tito Puente|Buena Vista Social Club|Compay Segundo|Willie Colón|Rubén Blades|Fito Páez|Gustavo Cerati|Soda Stereo|Charly García|Luis Alberto Spinetta|Los Fabulosos Cadillacs|Café Tacvba|Maná|Molotov|Zoé|Natalia Lafourcade|Julieta Venegas|Jesse & Joy|Morat|Reik|CNCO|Prince Royce|Aventura|Bachata Heightz|Zacarías Ferreira|Elvis Crespo|Olga Tañón|La India|Toño Rosario|Joe Arroyo|Grupo Niche|Los Van Van|Gilberto Gil|Caetano Veloso|Jorge Ben Jor|Tom Jobim|João Gilberto|Elis Regina|Marisa Monte|Seu Jorge|Ivete Sangalo|Claudia Leitte|Wesley Safadão|Gusttavo Lima|Jorge & Mateus|Henrique & Juliano|Marília Mendonça|Maiara & Maraisa|Simone Mendes|Zé Neto & Cristiano|Matheus & Kauan|Luan Santana|Michel Teló|Ludmilla|Pabllo Vittar|Iza|Lagum|Djavan|Chico Buarque|Milton Nascimento|Legião Urbana|Titãs|Os Paralamas do Sucesso|Skank|Jota Quest|Charlie Brown Jr.|Racionais MC's|MC Kevinho|MC Livinho|MC Poze do Rodo|MC Ryan SP|MC Hariel|MC Don Juan|MC IG|Matuê|Veigh|Xamã|Djonga|Emicida|BK'|Baco Exu do Blues|Rincon Sapiência|Criolo",
+"Arabic / Turkish / Africa":"Amr Diab|Fairuz|Umm Kulthum|Nancy Ajram|Elissa|Tamer Hosny|Mohamed Ramadan|Cheb Khaled|Saad Lamjarred|Hussain Al Jassmi|Kadim Al Sahir|Najwa Karam|Wael Kfoury|Fadl Shaker|Assala|Ahlam|Sherine|Mohammed Assaf|Balqees|Maher Zain|Sami Yusuf|Tarkan|Sezen Aksu|Sertab Erener|Hadise|Kenan Doğulu|Mabel Matiz|Ajda Pekkan|Miriam Makeba|Angélique Kidjo|Youssou N'Dour|Fally Ipupa|Koffi Olomide|Diamond Platnumz|Ali Kiba|Sauti Sol|Black Coffee|Master KG|Nasty C|Cassper Nyovest|Tiwa Savage|Yemi Alade|Flavour|2Baba|P-Square|Mr Eazi|Kizz Daniel|Ruger|Joeboy|Adekunle Gold|Oxlade|Libianca|Victony|BNXN|Burna Boy|Wizkid|Davido|Rema|Asake|Tyla|Ayra Starr|Fireboy DML|Omah Lay|CKay|Tems|Fela Kuti|King Sunny Adé|Femi Kuti|Seun Kuti|Orlando Julius|Ebo Taylor|Salif Keita|Oumou Sangaré|Ali Farka Touré|Toumani Diabaté|Tinariwen|Bombino|Rokia Traoré|Amadou & Mariam|Baaba Maal|Cesária Évora|Bonga|Eddy Kenzo|Jose Chameleone|Bebe Cool|Sheebah|Spice Diana|Harmonize|Rayvanny|Zuchu|Nandy|Marioo|Jux|Mbosso|Rich Mavoko|Willy Paul|Nyashinski|Khaligraph Jones|Octopizzo|Femi One|Bahati|Otile Brown|Nadia Mukami|Vanessa Mdee|Lava Lava|Barnaba|Ommy Dimpoz|Billnass|Fid Q|Joh Makini|Professor Jay|Sugu|Mr Blue|Q Chief|Mwana FA|Darassa|Young Killer|Stamina|Roma Mkatoliki|Moni Centrozone|Chin Bees|Nuh Mziwanda|Meek Mill|Wande Coal|D'banj|Don Jazzy|Phyno|Olamide|Zlatan|Naira Marley|Lil Kesh|Mayorkun|Dremo|Fave|Teni|Simi|Johnny Drille|Chike|Bella Shmurda|Portable|Seyi Vibez|Odumodublvck|Shallipopi|Wurld|Fola|Kcee|Duncan Mighty|Timaya|Harrysong|Reekado Banks|Ice Prince|M.I Abaga|Falz|Sarkodie|Shatta Wale|Stonebwoy|Black Sherif|King Promise|Kuami Eugene|Gyakie|Camidoh|Kidi|Mr Drew|Medikal|Kwesi Arthur|Joey B|Efya|Becca|Wendy Shay|Sista Afia|Fancy Gadam|Samini|Kofi Kinaata|Kwaw Kese|Amerado|Yaw Tog|Jay Bahd|Fameye|Lasmid|Rudeboy|Kizz Daniel"
+};
+let curKey='Hindi / Bollywood',lastNames=[],sInit=false;
+function artistRows(names){return names.length?names.map(n=>`<div class="ar"><span class="an" data-a="${esc(n)}">${esc(n)}</span><button class="star" data-s="${esc(n)}">${isFol(n)?'★':'☆'}</button></div>`).join(''):'<div class="msg">Kuch nahi mila. Upar se region chuno ya singer search karo.</div>'}
+function showNames(n){lastNames=n;$('#singHead').innerHTML='';$('#singBody').innerHTML=artistRows(n)}
+function showReg(k){curKey=k;showNames(k.startsWith('⭐')?FOL.slice():[...new Set(R[k].split('|'))])}
+function initSing(){
+  if(!sInit){sInit=true;const rc=$('#rchips');
+    ['⭐ My Singers',...Object.keys(R)].forEach((k,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=k;
+      b.onclick=()=>{rc.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#aq').value='';showReg(k)};rc.appendChild(b)});
+    let at;$('#aq').addEventListener('input',e=>{clearTimeout(at);const v=e.target.value.trim();if(!v){showReg(curKey);return}
+      at=setTimeout(async()=>{$('#singBody').innerHTML='<div class="msg">Searching…</div>';$('#singHead').innerHTML='';
+        try{showNames(await findArtists(v))}catch(err){$('#singBody').innerHTML='<div class="msg">Search fail: '+esc(err.message)+'</div>'}},400)});
+  }
+  const first=$('#rchips').children[FOL.length?0:1];first&&first.click();
+}
+function openArtist(n){
+  $('#singHead').innerHTML=`<div class="ar"><button class="chip" id="back">‹ Back</button><b class="an" style="text-align:center">${esc(n)}</b><button class="star" data-s="${esc(n)}">${isFol(n)?'★':'☆'}</button></div>`;
+  $('#back').onclick=()=>showNames(lastNames);
+  load($('#singBody'),()=>byArtist(n,50));
+}
+
+// ---- Player ----
+function play(i){
+  if(i<0||i>=list.length)return;idx=i;const t=list[i];
+  au.src=t.url;au.play().catch(()=>{});
+  $('#mini').style.display='flex';
+  $('#mimg').src=$('#fart').src=t.art;$('#mt').textContent=$('#ftitle').textContent=t.title;$('#ma').textContent=$('#fartist').textContent=t.artist;
+  hl();media(t);
+}
+function media(t){
+  if(!('mediaSession' in navigator))return;
+  navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,album:'Vibe Music',artwork:t.art?[{src:t.art,sizes:'512x512'}]:[]});
+  const h=navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);
+  h('play',()=>au.play());h('pause',()=>au.pause());h('nexttrack',next);h('previoustrack',prev);
+  try{h('seekto',e=>{au.currentTime=e.seekTime})}catch(_){}
+}
+const next=()=>play((idx+1)%list.length), prev=()=>{au.currentTime>3?au.currentTime=0:play((idx-1+list.length)%list.length)};
+const toggle=()=>au.paused?au.play():au.pause();
+$('#mplay').onclick=e=>{e.stopPropagation();toggle()};$('#fplay').onclick=toggle;
+$('#mnext').onclick=e=>{e.stopPropagation();next()};$('#fnext').onclick=next;$('#fprev').onclick=prev;
+$('#mini').onclick=()=>$('#full').classList.add('open');$('#grab').onclick=()=>$('#full').classList.remove('open');
+au.onplay=au.onpause=()=>{const p=au.paused;$('#mplay').innerHTML=$('#fplay').innerHTML=p?I.play:I.pause;$('#fart').classList.toggle('pause',p);
+  if('mediaSession' in navigator)navigator.mediaSession.playbackState=p?'paused':'playing'};
+au.onended=next;
+const fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00';
+au.ontimeupdate=()=>{if(!au.duration)return;const p=au.currentTime/au.duration*100;$('#seek').value=p;
+  $('#seek').style.background=`linear-gradient(90deg,#fff ${p}%,#ffffff40 ${p}%)`;$('#cur').textContent=fmt(au.currentTime);$('#dur').textContent=fmt(au.duration)};
+$('#seek').oninput=e=>{if(au.duration)au.currentTime=e.target.value/100*au.duration};
+$('#mplay').innerHTML=$('#fplay').innerHTML=I.play;
+
+// ---- Download (free, legal sources only) ----
+async function download(t){
+  if(!t)return;
+  try{
+    const r=await fetch(t.url);const b=await r.blob();
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);
+    a.download=(t.artist+' - '+t.title).replace(/[\\/:*?"<>|]/g,'')+(b.type.includes('mp4')||b.type.includes('aac')?'.m4a':'.mp3');
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  }catch(e){window.open(t.url,'_blank')}
+}
+$('#fdl').onclick=()=>download(list[idx]);
+$('#fyt').onclick=()=>{$('#full').classList.remove('open');playFull(list[idx])};
+</script>
+</body>
